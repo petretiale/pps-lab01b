@@ -1,6 +1,5 @@
 package it.unibo.pps.e1;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -9,8 +8,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BankAccountTest {
 
+
+
     @Nested
     public class SilverBankAccountTests {
+
+        public static final int DEPOSIT_AMOUNT = 1000;
+        public static final int WITHDRAW_AMOUNT = 200;
+        public static final int FEE = 1;
+
         private final BankAccount account = BankAccountFactory.createSilverAccount();
 
         @Test
@@ -20,39 +26,42 @@ public class BankAccountTest {
 
         @Test
         public void testCanDeposit() {
-            this.account.deposit(1000);
-            assertEquals(1000, this.account.getBalance());
+            this.account.deposit(DEPOSIT_AMOUNT);
+            assertEquals(DEPOSIT_AMOUNT, this.account.getBalance());
         }
 
         @Test
         public void testCanWithdraw() {
-            this.account.deposit(1000);
-            this.account.withdraw(200);
-            assertEquals(799, this.account.getBalance());
+            this.account.deposit(DEPOSIT_AMOUNT);
+            this.account.withdraw(WITHDRAW_AMOUNT);
+            assertEquals(DEPOSIT_AMOUNT - WITHDRAW_AMOUNT - FEE, this.account.getBalance());
         }
 
         @Test
         public void testCannotWithdrawMoreThanAvailable() {
-            this.account.deposit(1000);
+            this.account.deposit(DEPOSIT_AMOUNT);
             assertThrows(IllegalStateException.class, () -> this.account.withdraw(1200));
         }
-
     }
 
     @Nested
     public class GoldAccountTests {
+        public static final int DEPOSIT_AMOUNT = 100;
+        public static final int WITHDRAW_AMOUNT = 500;
         private final BankAccount account = BankAccountFactory.createGoldenAccount();
+        private int expected;
 
         @Test
         void testAllowsOverdraft() {
-            account.deposit(100);
-            account.withdraw(500);
-            assertEquals(-400, account.getBalance());
+            account.deposit(DEPOSIT_AMOUNT);
+            account.withdraw(WITHDRAW_AMOUNT);
+            int expectedResult = -400;
+            assertEquals(expectedResult, account.getBalance());
         }
 
         @Test
         void testBlocksExcessiveOverdraft() {
-            account.deposit(100);
+            account.deposit(DEPOSIT_AMOUNT);
             assertThrows(IllegalStateException.class, () -> account.withdraw(601));
         }
     }
@@ -60,28 +69,32 @@ public class BankAccountTest {
     @Nested
     public class BronzeAccountTests {
 
-        private int depositAmount = 200;
+        private static final int INITIAL_DEPOSIT = 100;
+        private static final int SMALL_WITHDRAWAL = 50;
+        private static final int LARGE_WITHDRAWAL = 100;
+        private static final int FEE = 1;
+
         private final BankAccount account = BankAccountFactory.createBronzeAccount();
 
         @Test
         void testNoFeeForSmallWithdrawal() {
-            account.deposit(depositAmount);
-            account.withdraw(50);
-            assertEquals(100, account.getBalance());
+            account.deposit(INITIAL_DEPOSIT);
+            account.withdraw(SMALL_WITHDRAWAL);
+            assertEquals(INITIAL_DEPOSIT - SMALL_WITHDRAWAL, account.getBalance());
         }
 
         @Test
         void testFeeForLargeWithdrawal() {
+            int depositAmount = 200;
             account.deposit(depositAmount);
-            account.withdraw(100);
-            assertEquals(99, account.getBalance());
+            account.withdraw(LARGE_WITHDRAWAL);
+            assertEquals(depositAmount - LARGE_WITHDRAWAL - FEE, account.getBalance());
         }
 
         @Test
         void testBlocksOverdraft() {
-            account.deposit(100);
-            assertThrows(IllegalStateException.class, () -> account.withdraw(100));
+            account.deposit(INITIAL_DEPOSIT);
+            assertThrows(IllegalStateException.class, () -> account.withdraw(LARGE_WITHDRAWAL));
         }
     }
-
 }
