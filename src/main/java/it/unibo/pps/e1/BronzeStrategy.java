@@ -7,7 +7,7 @@ public class BronzeStrategy implements WithdrawStrategy {
         if(bankAccount.getBalance() < (fee + amount)) {
             throw new IllegalStateException();
         }
-        bankAccount.withdraw(amount);
+        bankAccount.withdraw(amount + fee);
     }
 
     private static int calculateFee(int amount) {
