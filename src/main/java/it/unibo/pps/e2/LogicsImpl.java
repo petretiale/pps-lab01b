@@ -1,53 +1,44 @@
 package it.unibo.pps.e2;
 
-import java.util.*;
-
 public class LogicsImpl implements Logics {
-	
-	private final Pair<Integer,Integer> pawn;
-	private Pair<Integer,Integer> knight;
-	private final Random random = new Random();
-	private final int size;
-    private final MoveValidator moveValidator = new KnightMoveValidator();
+
+    private Board board;
+    private MovementStrategy moveValidator;
 	 
-    public LogicsImpl(int size){
-    	this.size = size;
-        this.pawn = this.randomEmptyPosition();
-        this.knight = this.randomEmptyPosition();	
+    public LogicsImpl(int size) {
+        this.board = new Board(size);
+        this.moveValidator = new KnightMovementStrategy();
     }
 
-    LogicsImpl(int size, Pair<Integer, Integer> knight, Pair<Integer, Integer> pawn) {
-        this.size = size;
-        this.knight = knight;
-        this.pawn = pawn;
+    LogicsImpl(Board board) {
+        this.board = board;
+        this.moveValidator = new KnightMovementStrategy();;
     }
-    
-	private final Pair<Integer,Integer> randomEmptyPosition(){
-    	Pair<Integer,Integer> pos = new Pair<>(this.random.nextInt(size),this.random.nextInt(size));
-    	// the recursive call below prevents clash with an existing pawn
-    	return this.pawn!=null && this.pawn.equals(pos) ? randomEmptyPosition() : pos;
-    }
-    
+
 	@Override
 	public boolean hit(int row, int col) {
-		if (row<0 || col<0 || row >= this.size || col >= this.size) {
-			throw new IndexOutOfBoundsException();
-		}
-        Pair<Integer, Integer> destination = new Pair<>(row, col);
-		if (moveValidator.isValid(this.knight, destination)) {
-			this.knight = destination;
-			return this.pawn.equals(this.knight);
+		checkBounds(row, col);
+        Pair<Integer, Integer> newPosition = new Pair<>(row, col);
+		if (moveValidator.isValid(board.getKnightPosition(), newPosition)) {
+            board.moveKnight(row, col);
+			return board.hasPawn(row, col);
 		}
 		return false;
 	}
 
+    private void checkBounds(int row, int col) {
+        if (row < 0 || col < 0 || row >= board.getSize() || col >= board.getSize()) {
+            throw new IndexOutOfBoundsException();
+        }
+    }
+
 	@Override
 	public boolean hasKnight(int row, int col) {
-		return this.knight.equals(new Pair<>(row,col));
+		return board.hasKnight(row, col);
 	}
 
 	@Override
 	public boolean hasPawn(int row, int col) {
-		return this.pawn.equals(new Pair<>(row,col));
+		return board.hasPawn(row,col);
 	}
 }

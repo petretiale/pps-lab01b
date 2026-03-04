@@ -1,6 +1,6 @@
 package it.unibo.pps.e2;
 
-public class KnightMoveValidator implements MoveValidator{
+public class KnightMovementStrategy implements MovementStrategy {
     @Override
     public boolean isValid(Pair<Integer, Integer> from, Pair<Integer, Integer> to) {
         int x = Math.abs(to.getX() - from.getX());
