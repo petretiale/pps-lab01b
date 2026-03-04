@@ -11,7 +11,6 @@ public class BronzeStrategy implements WithdrawStrategy {
     }
 
     private static int calculateFee(int amount) {
-        int fee;
-        return fee = (amount < 100)? 0 : 1;
+        return (amount < 100)? 0 : 1;
     }
 }

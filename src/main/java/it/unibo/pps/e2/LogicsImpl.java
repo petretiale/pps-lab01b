@@ -3,23 +3,23 @@ package it.unibo.pps.e2;
 public class LogicsImpl implements Logics {
 
     private Board board;
-    private MovementStrategy moveValidator;
+    private MovementStrategy knightMovement;
 	 
     public LogicsImpl(int size) {
         this.board = new Board(size);
-        this.moveValidator = new KnightMovementStrategy();
+        this.knightMovement = new KnightMovementStrategy();
     }
 
     LogicsImpl(Board board) {
         this.board = board;
-        this.moveValidator = new KnightMovementStrategy();;
+        this.knightMovement = new KnightMovementStrategy();;
     }
 
 	@Override
 	public boolean hit(int row, int col) {
 		checkBounds(row, col);
         Pair<Integer, Integer> newPosition = new Pair<>(row, col);
-		if (moveValidator.isValid(board.getKnightPosition(), newPosition)) {
+		if (knightMovement.isValid(board.getKnightPosition(), newPosition)) {
             board.moveKnight(row, col);
 			return board.hasPawn(row, col);
 		}
